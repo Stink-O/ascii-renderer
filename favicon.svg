@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#0a0a0a"/>
+  <text font-family="'Courier New',monospace" font-size="9" fill="#eee">
+    <tspan x="3" y="11">@#S</tspan>
+    <tspan x="3" y="20">%?*</tspan>
+    <tspan x="3" y="29">+;,</tspan>
+  </text>
+</svg>
