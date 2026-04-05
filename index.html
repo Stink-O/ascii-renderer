@@ -74,6 +74,19 @@
       border-radius: 50%;
     }
 
+    input[type="color"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      background: none;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: 1px solid #555; border-radius: 0; }
+
     select {
       background: transparent;
       border: none;
@@ -87,7 +100,7 @@
     }
     select option { background: #111; color: #eee; }
 
-    button#colorBtn, button#exportBtn {
+    button#colorBtn, button#exportBtn, button#bgOffBtn {
       background: transparent;
       border: none;
       color: #555;
@@ -194,6 +207,11 @@
       <span class="val" id="varyVal">0%</span>
     </div>
     <div class="row">
+      <span class="lbl">bg</span>
+      <input type="color" id="bgColorInput" value="#000000">
+      <button id="bgOffBtn">off</button>
+    </div>
+    <div class="row">
       <span class="lbl">mask</span>
       <span class="shape-add" data-type="circle" title="add circle">○</span>
       <span class="shape-add" data-type="rect" title="add rectangle">□</span>
@@ -251,6 +269,7 @@
     let shapes     = [];
     let nextShapeId = 0;
     let dragShape  = null, dragOx = 0, dragOy = 0;
+    let bgColor    = null;  // null = transparent; hex string = fill behind text grid only
 
     // ════════════════════════════════════════════════════════════════════════
     //  DOM ELEMENTS
@@ -508,6 +527,12 @@
       const startY = Math.round((H - rows * lineHeight) / 2);
       const pivX   = W / 2;
 
+      // ── Background fill (grid area only) ──────────────────────────────────
+      if (bgColor !== null) {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(Math.round((W - cols * charWidth) / 2), startY, cols * charWidth, rows * lineHeight);
+      }
+
       if (shapes.length > 0) {
         // ── Reflow path ────────────────────────────────────────────────────
         // For each row, measure the total horizontal space the shapes block,
@@ -654,6 +679,17 @@
     varySlider.addEventListener('input', () => {
       sizeVar = parseInt(varySlider.value, 10) / 100;
       varyVal.textContent = `${varySlider.value}%`;
+    });
+
+    const bgColorInput = document.getElementById('bgColorInput');
+    const bgOffBtn     = document.getElementById('bgOffBtn');
+    bgColorInput.addEventListener('input', () => {
+      bgColor = bgColorInput.value;
+      bgOffBtn.style.color = '#eee';
+    });
+    bgOffBtn.addEventListener('click', () => {
+      bgColor = null;
+      bgOffBtn.style.color = '#555';
     });
 
     fileInput.addEventListener('change', () => {
@@ -895,6 +931,12 @@
         expRCtx.textBaseline = 'top';
 
         const expStartY = (renderH - exportRows * exportLineH) / 2;
+
+        if (bgColor !== null) {
+          const bgCw = expRCtx.measureText('m').width;
+          expRCtx.fillStyle = bgColor;
+          expRCtx.fillRect(Math.round((renderW - cols * bgCw) / 2), expStartY, cols * bgCw, exportRows * exportLineH);
+        }
         const expPivX   = renderW / 2;
 
         if (shapes.length > 0) {
